@@ -1,0 +1,4 @@
+*.conf
+node_modules
+/proto
+/tests

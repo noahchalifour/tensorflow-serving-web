@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+    web:
+        build: .
+        environment:
+            TF_SERVING_HOST: tf-serving
+            TF_SERVING_REST_PORT: 8501
+            TF_SERVING_GRPC_PORT: 8500
+            TF_CONFIG_PATH: /tensorflow/config/config.conf
+            TF_MODELS_PATH: /tensorflow/models
+        ports:
+            - "8000:8000"
+        volumes:
+            - tf-config:/tensorflow/config
+            - tf-models:/tensorflow/models
+
+    tf-serving:
+        depends_on: 
+            - web
+        image: tensorflow/serving
+        command: --model_config_file=/config/config.conf
+        volumes:
+            - tf-config:/config
+            - tf-models:/models
+
+volumes:
+    tf-config:
+    tf-models:

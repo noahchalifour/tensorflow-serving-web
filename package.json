@@ -1,0 +1,25 @@
+{
+  "name": "tensorflow-serving-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.6",
+    "extract-zip": "^1.6.7",
+    "google-protobuf": "^3.11.1",
+    "grpc": "^1.24.2",
+    "helmet": "^3.21.2",
+    "morgan": "^1.9.1",
+    "nodemon": "^2.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "cd react-app && yarn build",
+    "start": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
