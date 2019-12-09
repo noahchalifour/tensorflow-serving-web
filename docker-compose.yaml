@@ -23,6 +23,9 @@ services:
         volumes:
             - tf-config:/config
             - tf-models:/models
+        ports:
+            - "8500:8500"
+            - "8501:8501"
 
 volumes:
     tf-config:

@@ -3,8 +3,6 @@ const fileUpload = require('express-fileupload');
 
 const ModelsController = require('../controllers/ModelsController');
 
-const tensorflow = require('../../utils/tensorflow');
-
 const router = express.Router();
 
 router.get('/', function(req, res) {
@@ -35,7 +33,7 @@ router.post('/add', fileUpload({
         })
     }
 
-    if (!req.body.model_platform) {
+    if (!req.body.platform) {
         return res.status(400).json({
             messageText: 'You must specify a model platform.'
         })
@@ -47,24 +45,46 @@ router.post('/add', fileUpload({
         })
     }
 
-    res.status(200).json({
-        messageText: 'Started model upload.'
-    });
+    ModelsController.getModelStatusByName(req.body.name, function(err, modelStatus) {
 
-    ModelsController.addModel(req.body, req.files.model, function(err, model) {
-
-        if (err) {
-            console.error('Error adding model:', err);
+        if (err && err.response.status != 404) {
+            console.error(err);
+            return res.status(500).json({
+                messageText: 'An unexpected error occurred while adding model.'
+            })
         }
 
+        if (!err) {
+            return res.status(400).json({
+                messageText: 'A model with that name already exists.'
+            });
+        }
+
+        res.status(200).json({
+            messageText: 'Started model upload.'
+        });
+    
+        ModelsController.addModel(req.body, req.files.model, function(err, model) {
+    
+            if (err) {
+                console.error('Error adding model:', err);
+            }
+    
+        });
+
     });
 
-})
+});
 
-router.all('*', function(req, res) {
+router.delete('/:name', function(req, res) {
 
-    return res.status(301)
-        .redirect(`${tensorflow.SERVING_REST}/v1/models${req.url}`);
+    ModelsController.deleteModel(req.params.name, function(err) {
+
+        if (err) {
+            console.error('Error deleting model:', err);
+        }
+
+    })
 
 })
 

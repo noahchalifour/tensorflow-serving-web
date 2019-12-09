@@ -85,10 +85,10 @@ function saveConfig(modelServerConfig, callback) {
         const name = model.getName();
         const basePath = model.getBasePath();
         const modelPlatform = model.getModelPlatform();
-        configStr += `config: {name: "${name}", base_path: "${basePath}", model_platform: "${modelPlatform}"}`;
+        configStr += `config: {name: "${name}", base_path: "${basePath}", model_platform: "${modelPlatform}"},`;
     }
-
-    configStr += '}'
+    
+    configStr = configStr.slice(0, configStr.length - 1) + '}'
 
     return fs.writeFile(CONFIG_PATH, configStr, callback);
 
@@ -110,11 +110,54 @@ function addModelConfig(modelConfig, callback) {
         const oneConfig = new model_server_config_pb.ModelConfig();
         oneConfig.setName(modelConfig.name);
         oneConfig.setBasePath(path.join('/models', modelConfig.name));
-        oneConfig.setModelPlatform(modelConfig.model_platform);
+        oneConfig.setModelPlatform(modelConfig.platform);
     
         configList.addConfig(oneConfig);
     
         modelServerConfig.setModelConfigList(configList);
+        request.setConfig(modelServerConfig);
+
+        stub.handleReloadConfigRequest(request, function(err, response) {
+
+            if (err) {
+                return callback(err);
+            }
+
+            saveConfig(modelServerConfig, function(err) {
+
+                if (err) {
+                    return callback(err);
+                }
+
+                return callback(null, response);
+
+            });
+
+        });
+
+    });
+
+}
+
+function removeModelConfig(name, callback) {
+
+    const stub = new model_service_grpc_pb.ModelServiceClient(SERVING_GRPC, grpc.credentials.createInsecure());
+    const request = new model_management_pb.ReloadConfigRequest();
+
+    getConfig(function(err, modelServerConfig) {
+
+        if (err) {
+            return callback(err);
+        }
+
+        const configList = modelServerConfig.getModelConfigList();
+        const newConfigList = configList.filter(config => config.getName() != name);
+
+        if (configList.length == newConfigList.length) {
+            return callback(`Could not find model with name: ${name}`);
+        }
+    
+        modelServerConfig.setModelConfigList(newConfigList);
         request.setConfig(modelServerConfig);
 
         stub.handleReloadConfigRequest(request, function(err, response) {
@@ -235,6 +278,7 @@ module.exports = {
     initConfig,
     getConfig,
     addModelConfig,
+    removeModelConfig,
     CONFIG_PATH,
     SERVING_REST,
     SERVING_GRPC

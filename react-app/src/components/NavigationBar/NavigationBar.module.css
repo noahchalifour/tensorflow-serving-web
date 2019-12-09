@@ -1,0 +1,24 @@
+.navbar {
+    background-color: #F57C00;
+    color: white;
+    -webkit-box-shadow: 0 8px 6px -6px #999;
+    -moz-box-shadow: 0 8px 6px -6px #999;
+    box-shadow: 0 8px 6px -6px #999;
+}
+
+.brand {
+    font-weight: 600;
+}
+
+.nav {
+    margin-left: 30px;
+}
+
+.nav > a {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.nav > a:hover {
+    color: white;
+    text-decoration: none;
+}

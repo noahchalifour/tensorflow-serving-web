@@ -1,0 +1,18 @@
+.container {
+    padding: 20px 0;
+    display: table-cell;
+}
+
+.header {
+    margin-bottom: 0;
+    margin-right: 20px;
+}
+
+.container > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.container > *:not(.header) {
+    margin-right: 20px;
+}

@@ -1,0 +1,9 @@
+.submit {
+    background-color: #F57C00 !important;
+    border: #F57C00 !important;
+}
+
+.chooseFile {
+    display: block !important;
+    width: 100px;
+}

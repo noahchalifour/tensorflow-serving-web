@@ -1,3 +1,4 @@
-*.conf
 node_modules
-/tests
+/serving
+/tensorflow
+/scripts

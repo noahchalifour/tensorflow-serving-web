@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 
-const tensorflow = require('./utils/tensorflow');
-tensorflow.initConfig();
+// const tensorflow = require('./utils/tensorflow');
+// tensorflow.initConfig();
 
 const api = require('./api');
 

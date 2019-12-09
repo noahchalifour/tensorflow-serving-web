@@ -5,10 +5,14 @@ import {
   Route,
   Redirect
 } from 'react-router-dom';
+import { 
+  Container
+} from 'react-bootstrap';
 
 import NavigationBar from './components/NavigationBar/NavigationBar';
 
 import Models from './pages/Models/Models';
+import ModelDetails from './pages/Models/Details/ModelDetails';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -17,12 +21,23 @@ function App() {
   return (
     <Router>
       <NavigationBar />
-      <Switch>
-        <Route path='/models'>
-          <Models />
-        </Route>
-        <Redirect to='/models' />
-      </Switch>
+      <Container fluid={true}>
+        <Switch>
+          <Route
+            exact path='/models'
+            component={Models}
+          />
+          <Route
+            exact path='/models/:name'
+            component={ModelDetails}
+          />
+          <Route
+            exact path='/models/:name/versions/:version'
+            component={ModelDetails}
+          />
+          <Redirect to='/models' />
+        </Switch>
+      </Container>
     </Router>
   );
 }

@@ -6,17 +6,18 @@ import {
 import {
     Link
 } from 'react-router-dom';
+import cx from 'classname';
+
+import styles from './NavigationBar.module.css';
 
 function NavigationBar(props) {
     return (
-        <Navbar bg="light" expand="sm">
-            <Navbar.Brand href="#home">Tensorflow Serving</Navbar.Brand>
+        <Navbar variant='dark' expand="sm" className={styles.navbar}>
+            <Navbar.Brand className={styles.brand} href="/models">Tensorflow Serving</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="mr-auto">
-                    <Link to='/models'>
-                        <Nav.Link href="#home">Models</Nav.Link>
-                    </Link>
+                <Nav className={cx("mr-auto", styles.nav)}>
+                    <Link to='/models'>Models</Link>
                 </Nav>
             </Navbar.Collapse>
         </Navbar>

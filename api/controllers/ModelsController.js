@@ -1,6 +1,9 @@
-const tensorflow = require('../../utils/tensorflow');
 const extractZip = require('extract-zip');
 const path = require('path');
+const rimraf = require('rimraf');
+const axios = require('axios');
+
+// const tensorflow = require('../../utils/tensorflow');
 
 let uploadStatus = {};
 
@@ -22,17 +25,17 @@ function getModels(callback) {
 
             return {
                 name: name,
-                model_platform: modelPlatform,
-                status: uploadStatus[name] ? uploadStatus[name] : 'success'
+                platform: modelPlatform,
+                upload_status: uploadStatus[name] ? uploadStatus[name] : 'Success'
             }
 
         });
 
         for (model of Object.keys(uploadStatus)) {
-            if (uploadStatus[model] != 'success') {
+            if (uploadStatus[model] != 'Success') {
                 models.push({
                     name: model,
-                    status: uploadStatus[model]
+                    upload_status: uploadStatus[model]
                 })
             }
         }
@@ -43,9 +46,23 @@ function getModels(callback) {
 
 }
 
+function getModelStatusByName(name, callback) {
+
+    axios.get(`${tensorflow.SERVING_REST}/v1/models/${name}`)
+        .then(
+            (response) => {
+                return callback(null, response.data)
+            },
+            (error) => {
+                return callback(error)
+            }
+        )
+
+}
+
 function addModel(modelConfig, modelZip, callback) {
 
-    uploadStatus[modelConfig.name] = 'uploading';
+    uploadStatus[modelConfig.name] = 'Uploading...';
 
     extractZip(modelZip.tempFilePath, {
         dir: path.join(process.env.TF_MODELS_PATH, modelConfig.name, '1')
@@ -58,11 +75,11 @@ function addModel(modelConfig, modelZip, callback) {
         return tensorflow.addModelConfig(modelConfig, function(err, result) {
 
             if (err && err.code != 2) {
-                uploadStatus[modelConfig.name] = 'failed';
+                uploadStatus[modelConfig.name] = 'Failed';
                 return callback(err);
             }
 
-            uploadStatus[modelConfig.name] = 'success';
+            uploadStatus[modelConfig.name] = 'Success';
 
         });
 
@@ -70,7 +87,31 @@ function addModel(modelConfig, modelZip, callback) {
 
 }
 
+function deleteModel(name, callback) {
+
+    delete uploadStatus[name];
+
+    rimraf(path.join(process.env.TF_MODELS_PATH, name), function(err) {
+
+        if (err) {
+            return callback(err);
+        }
+
+        return tensorflow.removeModelConfig(name, function(err) {
+
+            if (err && err.code != 2) {
+                return callback(err);
+            }
+
+        })
+
+    })
+
+}
+
 module.exports = {
     getModels,
-    addModel
+    getModelStatusByName,
+    addModel,
+    deleteModel
 }
