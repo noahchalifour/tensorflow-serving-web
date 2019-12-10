@@ -2,3 +2,4 @@ node_modules
 /serving
 /tensorflow
 /scripts
+/react-app/build

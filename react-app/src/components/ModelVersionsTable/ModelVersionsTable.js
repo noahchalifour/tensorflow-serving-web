@@ -5,72 +5,92 @@ import {
     FontAwesomeIcon
 } from '@fortawesome/react-fontawesome';
 import {
-    faChevronRight
+    faCheckCircle,
+    faTimesCircle,
+    faTimes
 } from '@fortawesome/free-solid-svg-icons';
-import {
-    Redirect
-} from 'react-router-dom';
 
+import Wrapper from '../../hoc/Wrapper';
 import Loading from '../Loading/Loading';
 import CustomTable from '../CustomTable/CustomTable';
+import ConfirmDeleteModelModal from '../ConfirmDeleteModelModal/ConfirmDeleteModelModal';
 
 import styles from './ModelVersionsTable.module.css';
 
 function ModelVersionsTable(props) {
 
-    const [selectedRow, setSelectedRow] = useState(null);
+    const [confirmDeleteModelModalVisible, setConfirmDeleteModelModalVisible] = useState(false);
+    const [selectedVersion, setSelectedVersion] = useState(null);
 
-    if (selectedRow != null && props.selectedVersion !== props.versions.data[selectedRow].version) {
-        return <Redirect
-            to={`/models/${props.name}/versions/${props.versions.data[selectedRow].version}`}
-        />
+    function confirmDeleteModel(version) {
+
+        setSelectedVersion(version);
+        setConfirmDeleteModelModalVisible(true);
+
     }
 
     return (
-        <CustomTable>
-            <thead>
-                <tr>
-                    <th>Version</th>
-                    <th>State</th>
-                    <th>Code</th>
-                    <th>Error Message</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {props.versions.error ? (
+        <Wrapper>
+            <ConfirmDeleteModelModal
+                show={confirmDeleteModelModalVisible}
+                onHide={() => setConfirmDeleteModelModalVisible(false)}
+                modelName={props.name}
+                modelVersion={selectedVersion}
+            />
+            <CustomTable>
+                <thead>
                     <tr>
-                        <td colSpan={5}>
-                            {props.versions.error.messageText || 'An unknown error occurred.'}
-                        </td>
+                        <th>Version</th>
+                        <th>Upload Status</th>
+                        <th>Message</th>
+                        <th>State</th>
+                        <th>Code</th>
+                        <th>Error Message</th>
+                        <th></th>
                     </tr>
-                ) : props.versions.loading ? (
-                    <tr>
-                        <td colSpan={5}>
-                            <Loading />
-                        </td>
-                    </tr>
-                ) : props.versions.data.length === 0 ? (
-                    <tr>
-                        <td colSpan={5}>
-                            No versions found.
-                        </td>
-                    </tr>
-                ) : props.versions.data.map((modelVersion, index, arr) => (
-                    <tr key={index} className={styles.row} onClick={() => setSelectedRow(index)}>
-                        <td width='25%'>{modelVersion.version}</td>
-                        <td width='25%'>{modelVersion.state}</td>
-                        <td width='25%'>{modelVersion.status.error_code}</td>
-                        <td width='25%'>{modelVersion.status.error_message}</td>
-                        <td width='auto'>
-                            {props.selectedVersion !== modelVersion.version && (
-                                <FontAwesomeIcon icon={faChevronRight} />
-                            )}
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </CustomTable>
+                </thead>
+                <tbody>
+                    {props.versions.error ? (
+                        <tr>
+                            <td colSpan={7}>
+                                {props.versions.error.messageText || 'An unknown error occurred.'}
+                            </td>
+                        </tr>
+                    ) : props.versions.loading ? (
+                        <tr>
+                            <td colSpan={7}>
+                                <Loading />
+                            </td>
+                        </tr>
+                    ) : props.versions.data.length === 0 ? (
+                        <tr>
+                            <td colSpan={7}>
+                                No versions found.
+                            </td>
+                        </tr>
+                    ) : props.versions.data.map((modelVersion, index, arr) => (
+                        <tr key={index}>
+                            <td width='16%'>{modelVersion.version}</td>
+                            <td width='16%' className={modelVersion.upload.status === 'Success' ? styles.statusSuccess : modelVersion.upload.status === 'Failed' || modelVersion.upload.status === 'Delete Failed' ? styles.statusFailed : ''}>
+                                {modelVersion.upload.status === 'Success' ? (
+                                    <FontAwesomeIcon className={styles.statusIcon} icon={faCheckCircle} />
+                                ) : modelVersion.upload.status === 'Failed' || modelVersion.upload.status === 'Delete Failed' ? (
+                                    <FontAwesomeIcon className={styles.statusIcon} icon={faTimesCircle} />
+                                ) : null}
+                                <span className={styles.status}>{modelVersion.upload.status}</span>
+                            </td>
+                            <td width='16%'>{modelVersion.upload.message || ''}</td>
+                            <td width='16%'>{modelVersion.state}</td>
+                            <td width='16%'>{modelVersion.status.error_code}</td>
+                            <td width='16%'>{modelVersion.status.error_message}</td>
+                            <td width='auto'>
+                                <FontAwesomeIcon className={styles.delete} onClick={() => confirmDeleteModel(modelVersion.version)} icon={faTimes} />
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </CustomTable>
+        </Wrapper>
     )
 
 }

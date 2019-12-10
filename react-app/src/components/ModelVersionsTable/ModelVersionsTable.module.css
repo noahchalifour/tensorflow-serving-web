@@ -1,3 +1,19 @@
-.row {
+.statusIcon {
+    margin-right: 10px;
+}
+
+.status {
+    font-weight: 600;
+}
+
+.statusSuccess {
+    color: #40c242;
+}
+
+.statusFailed {
+    color: #f54c4c;
+}
+
+.delete {
     cursor: pointer;
 }

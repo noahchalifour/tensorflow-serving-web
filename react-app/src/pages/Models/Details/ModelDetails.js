@@ -5,8 +5,15 @@ import React, {
 import {
     Row,
     Col,
-    Form
+    Form,
+    Button
 } from 'react-bootstrap';
+import { 
+    FontAwesomeIcon 
+} from '@fortawesome/react-fontawesome';
+import {
+    faSyncAlt
+} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 import Wrapper from '../../../hoc/Wrapper';
@@ -14,6 +21,10 @@ import HeaderBar from '../../../components/HeaderBar/HeaderBar';
 import Loading from '../../../components/Loading/Loading';
 import Card from '../../../components/Card/Card';
 import ModelVersionsTable from '../../../components/ModelVersionsTable/ModelVersionsTable';
+import AddModelVersionModal from '../../../components/AddModelVersionModal/AddModelVersionModal';
+import ConfirmDeleteModelModal from '../../../components/ConfirmDeleteModelModal/ConfirmDeleteModelModal';
+
+import styles from './ModelDetails.module.css';
 
 function ModelDetails(props) {
 
@@ -24,10 +35,12 @@ function ModelDetails(props) {
     const [modelMetadata, setModelMetadata] = useState({
         data: null,
         loading: true
-    })
+    });
+
+    const [addModelVersionModalVisible, setAddModelVersionModalVisible] = useState(false);
+    const [confirmDeleteModelModalVisible, setConfirmDeleteModelModalVisible] = useState(false);
 
     const name = props.match.params.name;
-    const version = props.match.params.version;
 
     function loadModelStatus() {
 
@@ -36,12 +49,7 @@ function ModelDetails(props) {
             loading: true
         });
 
-        let url = `http://${process.env.TF_SERVING_HOST}:${process.env.TF_SERVING_REST_PORT}/v1/models/${name}`;
-        if (version != null) {
-            url += `/versions/${version}`
-        }
-
-        axios.get(url)
+        axios.get(`/api/models/${name}`)
             .then(
                 (response) => {
                     setModelStatus({
@@ -66,13 +74,7 @@ function ModelDetails(props) {
             loading: true
         });
 
-        let url = `http://${process.env.TF_SERVING_HOST}:${process.env.TF_SERVING_REST_PORT}/v1/models/${name}`;
-        if (version != null) {
-            url += `/versions/${version}`
-        }
-        url += '/metadata'
-
-        axios.get(url)
+        axios.get(`/api/models/${name}/metadata`)
             .then(
                 (response) => {
                     setModelMetadata({
@@ -106,9 +108,6 @@ function ModelDetails(props) {
     const loading = [modelStatus, modelMetadata].some(item => item.loading);
     const error = modelStatus.error || modelMetadata.error;
 
-    console.log(modelStatus);
-    console.log(modelMetadata);
-
     return (
         loading ? (
             <Loading
@@ -122,12 +121,24 @@ function ModelDetails(props) {
             </HeaderBar>
         ) : (
             <Wrapper>
-                <HeaderBar
-                    header={version == null ? `${name}` : `${name} (Version: ${version})`}
+                <AddModelVersionModal
+                    show={addModelVersionModalVisible}
+                    onHide={() => setAddModelVersionModalVisible(false)}
+                    modelName={name}
                 />
-                {version == null && (
-                    <p>Showing data for latest model version: {modelMetadata.data.model_spec.version}</p>
-                )}
+                <ConfirmDeleteModelModal
+                    show={confirmDeleteModelModalVisible}
+                    onHide={() => setConfirmDeleteModelModalVisible(false)}
+                    modelName={name}
+                />
+                <HeaderBar
+                    header={`${name}`}
+                >
+                    <Button size='sm' variant='secondary' onClick={() => setAddModelVersionModalVisible(true)}>+ Add Version</Button>
+                    <Button size='sm' variant='secondary' onClick={() => setConfirmDeleteModelModalVisible(true)}>Delete</Button>
+                    <FontAwesomeIcon onClick={() => loadModel()} icon={faSyncAlt} className={styles.refresh} />
+                </HeaderBar>
+                <p>Showing data for latest model available version: {modelMetadata.data.model_spec.version}</p>
                 <Row>
                     <Col>
                         <Form.Group>
@@ -176,7 +187,6 @@ function ModelDetails(props) {
                     <ModelVersionsTable
                         name={name}
                         versions={modelStatus}
-                        selectedVersion={version || -1}
                     />
                 </Card>
             </Wrapper>

@@ -24,27 +24,18 @@ import styles from './Models.module.css';
 function Models(props) {
 
     const [models, setModels] = useState({
-        data: [
-            {
-                name: 'Test1',
-                platform: 'tensorflow',
-                upload_status: 'Success'
-            },
-            {
-                name: 'Test2',
-                upload_status: 'Uploading...'
-            },
-            {
-                name: 'Test3',
-                upload_status: 'Failed'
-            }
-        ],
-        loading: false
+        data: [],
+        loading: true
     });
 
     const [addModelModalVisible, setAddModelModalVisible] = useState(false);
 
     function loadModels() {
+
+        setModels({
+            data: [],
+            loading: true
+        })
 
         axios.get(`/api/models`)
             .then(
@@ -64,20 +55,9 @@ function Models(props) {
 
     }
 
-    function onRefreshClick() {
-
-        setModels({
-            data: [],
-            loading: true
-        });
-
-        loadModels();
-
-    }
-
     useEffect(() => {
 
-        // loadModels();
+        loadModels();
 
     }, []);
 
@@ -91,7 +71,7 @@ function Models(props) {
                 header='All Models'
             >
                 <Button size='sm' variant='secondary' onClick={() => setAddModelModalVisible(true)}>+ Add</Button>
-                <FontAwesomeIcon onClick={onRefreshClick} icon={faSyncAlt} className={styles.refresh} />
+                <FontAwesomeIcon onClick={() => loadModels()} icon={faSyncAlt} className={styles.refresh} />
             </HeaderBar>
             <Card>
                 <div className='table-responsive'>

@@ -31,10 +31,6 @@ function App() {
             exact path='/models/:name'
             component={ModelDetails}
           />
-          <Route
-            exact path='/models/:name/versions/:version'
-            component={ModelDetails}
-          />
           <Redirect to='/models' />
         </Switch>
       </Container>

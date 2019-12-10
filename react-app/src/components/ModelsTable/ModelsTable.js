@@ -35,40 +35,42 @@ function ModelsTable(props) {
                     <th>Name</th>
                     <th>Platform</th>
                     <th>Upload Status</th>
+                    <th>Message</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 {props.models.error ? (
                     <tr>
-                        <td colSpan={4}>
+                        <td colSpan={5}>
                             {props.models.error.messageText || 'An unknown error occurred.'}
                         </td>
                     </tr>
                 ) : props.models.loading ? (
                     <tr>
-                        <td colSpan={4}>
+                        <td colSpan={5}>
                             <Loading />
                         </td>
                     </tr>
                 ) : props.models.data.length === 0 ? (
                     <tr>
-                        <td colSpan={4}>
+                        <td colSpan={5}>
                             No models found.
                         </td>
                     </tr>
                 ) : props.models.data.map((model, index, arr) => (
                     <tr key={index} className={styles.row} onClick={() => setSelectedRow(index)}>
-                        <td width='33%'>{model.name}</td>
-                        <td width='33%'>{model.platform || ''}</td>
-                        <td width='33%' className={model.upload_status === 'Success' ? styles.statusSuccess : model.upload_status === 'Failed' ? styles.statusFailed : ''}>
-                            {model.upload_status === 'Success' ? (
+                        <td width='25%'>{model.name}</td>
+                        <td width='25%'>{model.platform || ''}</td>
+                        <td width='25%' className={model.upload.status === 'Success' ? styles.statusSuccess : model.upload.status === 'Failed' || model.upload.status === 'Delete Failed' ? styles.statusFailed : ''}>
+                            {model.upload.status === 'Success' ? (
                                 <FontAwesomeIcon className={styles.statusIcon} icon={faCheckCircle} />
-                            ) : model.upload_status === 'Failed' ?(
+                            ) : model.upload.status === 'Failed' || model.upload.status === 'Delete Failed' ? (
                                 <FontAwesomeIcon className={styles.statusIcon} icon={faTimesCircle} />
                             ) : null}
-                            <span className={styles.status}>{model.upload_status}</span>
+                            <span className={styles.status}>{model.upload.status}</span>
                         </td>
+                        <td width='25%'>{model.upload.message || ''}</td>
                         <td width='auto'>
                             <FontAwesomeIcon icon={faChevronRight} />
                         </td>
