@@ -14,6 +14,9 @@ import {
 import {
     faSyncAlt
 } from '@fortawesome/free-solid-svg-icons';
+import {
+    Redirect
+} from 'react-router-dom';
 import axios from 'axios';
 
 import Wrapper from '../../../hoc/Wrapper';
@@ -39,6 +42,7 @@ function ModelDetails(props) {
 
     const [addModelVersionModalVisible, setAddModelVersionModalVisible] = useState(false);
     const [confirmDeleteModelModalVisible, setConfirmDeleteModelModalVisible] = useState(false);
+    const [modelDeleted, setModelDeleted] = useState(false);
 
     const name = props.match.params.name;
 
@@ -108,6 +112,12 @@ function ModelDetails(props) {
     const loading = [modelStatus, modelMetadata].some(item => item.loading);
     const error = modelStatus.error || modelMetadata.error;
 
+    if (modelDeleted) {
+        return <Redirect
+            to={'/models'}
+        />
+    }
+
     return (
         loading ? (
             <Loading
@@ -130,6 +140,7 @@ function ModelDetails(props) {
                     show={confirmDeleteModelModalVisible}
                     onHide={() => setConfirmDeleteModelModalVisible(false)}
                     modelName={name}
+                    onDelete={() => setModelDeleted(true)}
                 />
                 <HeaderBar
                     header={`${name}`}

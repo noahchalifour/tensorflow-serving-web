@@ -229,9 +229,9 @@ router.delete('/:name', function(req, res) {
     ModelsController.getModelStatus(req.params.name, null, function(err, modelStatus) {
 
         if (err) {
-            console.error('Error deleting model version:', err);
+            console.error('Error deleting model:', err);
             return res.status(500).json({
-                messageText: 'An unexpected error occurred deleting model version.'
+                messageText: 'An unexpected error occurred deleting model.'
             })
         }
 
@@ -248,7 +248,7 @@ router.delete('/:name', function(req, res) {
         ModelsController.deleteModel(req.params.name, function(err) {
 
             if (err) {
-                console.error('Error deleting model version:', err);
+                console.error('Error deleting model:', err);
             }
 
         })

@@ -21,7 +21,7 @@ function App() {
   return (
     <Router>
       <NavigationBar />
-      <Container fluid={true}>
+      <Container className='App-container' fluid={true}>
         <Switch>
           <Route
             exact path='/models'

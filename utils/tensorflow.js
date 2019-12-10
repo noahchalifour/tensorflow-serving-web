@@ -87,8 +87,12 @@ function saveConfig(modelServerConfig, callback) {
         const modelPlatform = model.getModelPlatform();
         configStr += `config: {name: "${name}", base_path: "${basePath}", model_platform: "${modelPlatform}"},`;
     }
+
+    if (configList.length > 0) {
+        configStr = configStr.slice(0, configStr.length - 1);
+    }
     
-    configStr = configStr.slice(0, configStr.length - 1) + '}'
+    configStr += '}';
 
     return fs.writeFile(CONFIG_PATH, configStr, callback);
 
@@ -150,14 +154,18 @@ function removeModelConfig(name, callback) {
             return callback(err);
         }
 
-        const configList = modelServerConfig.getModelConfigList();
+        const modelConfigList = modelServerConfig.getModelConfigList();
+        const configList = modelConfigList.getConfigList();
         const newConfigList = configList.filter(config => config.getName() != name);
 
         if (configList.length == newConfigList.length) {
             return callback(`Could not find model with name: ${name}`);
         }
+
+        const newModelConfigList = new model_server_config_pb.ModelConfigList();
+        newModelConfigList.setConfigList(newConfigList);
     
-        modelServerConfig.setModelConfigList(newConfigList);
+        modelServerConfig.setModelConfigList(newModelConfigList);
         request.setConfig(modelServerConfig);
 
         stub.handleReloadConfigRequest(request, function(err, response) {

@@ -7,13 +7,14 @@ import {
 import {
     faCheckCircle,
     faTimesCircle,
+    faExclamationCircle,
     faTimes
 } from '@fortawesome/free-solid-svg-icons';
 
 import Wrapper from '../../hoc/Wrapper';
 import Loading from '../Loading/Loading';
 import CustomTable from '../CustomTable/CustomTable';
-import ConfirmDeleteModelModal from '../ConfirmDeleteModelModal/ConfirmDeleteModelModal';
+// import ConfirmDeleteModelModal from '../ConfirmDeleteModelModal/ConfirmDeleteModelModal';
 
 import styles from './ModelVersionsTable.module.css';
 
@@ -31,12 +32,13 @@ function ModelVersionsTable(props) {
 
     return (
         <Wrapper>
-            <ConfirmDeleteModelModal
+            {/* <ConfirmDeleteModelModal
                 show={confirmDeleteModelModalVisible}
                 onHide={() => setConfirmDeleteModelModalVisible(false)}
                 modelName={props.name}
                 modelVersion={selectedVersion}
-            />
+                onDelete={() => {}}
+            /> */}
             <CustomTable>
                 <thead>
                     <tr>
@@ -71,20 +73,26 @@ function ModelVersionsTable(props) {
                     ) : props.versions.data.map((modelVersion, index, arr) => (
                         <tr key={index}>
                             <td width='16%'>{modelVersion.version}</td>
-                            <td width='16%' className={modelVersion.upload.status === 'Success' ? styles.statusSuccess : modelVersion.upload.status === 'Failed' || modelVersion.upload.status === 'Delete Failed' ? styles.statusFailed : ''}>
+                            <td width='16%' className={modelVersion.upload.status === 'Success' ? styles.statusSuccess : 
+                                                       modelVersion.upload.status === 'Failed' || modelVersion.upload.status === 'Delete Failed' ? styles.statusFailed : 
+                                                       modelVersion.upload.status === 'Deleted' ? styles.statusDeleted : ''}>
                                 {modelVersion.upload.status === 'Success' ? (
                                     <FontAwesomeIcon className={styles.statusIcon} icon={faCheckCircle} />
-                                ) : modelVersion.upload.status === 'Failed' || modelVersion.upload.status === 'Delete Failed' ? (
+                                ) : modelVersion.upload.status === 'Deleted' ? (
                                     <FontAwesomeIcon className={styles.statusIcon} icon={faTimesCircle} />
+                                ) : modelVersion.upload.status === 'Failed' || modelVersion.upload.status === 'Delete Failed' ? (
+                                    <FontAwesomeIcon className={styles.statusIcon} icon={faExclamationCircle} />
                                 ) : null}
                                 <span className={styles.status}>{modelVersion.upload.status}</span>
                             </td>
-                            <td width='16%'>{modelVersion.upload.message || ''}</td>
+                            <td width='16%'>{modelVersion.upload.error || ''}</td>
                             <td width='16%'>{modelVersion.state}</td>
                             <td width='16%'>{modelVersion.status.error_code}</td>
                             <td width='16%'>{modelVersion.status.error_message}</td>
                             <td width='auto'>
-                                <FontAwesomeIcon className={styles.delete} onClick={() => confirmDeleteModel(modelVersion.version)} icon={faTimes} />
+                                {/* {props.versions.data.length > 1 && (
+                                    <FontAwesomeIcon className={styles.delete} onClick={() => confirmDeleteModel(modelVersion.version)} icon={faTimes} />
+                                )} */}
                             </td>
                         </tr>
                     ))}

@@ -7,6 +7,7 @@ import {
 import {
     faCheckCircle,
     faTimesCircle,
+    faExclamationCircle,
     faChevronRight
 } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -62,15 +63,19 @@ function ModelsTable(props) {
                     <tr key={index} className={styles.row} onClick={() => setSelectedRow(index)}>
                         <td width='25%'>{model.name}</td>
                         <td width='25%'>{model.platform || ''}</td>
-                        <td width='25%' className={model.upload.status === 'Success' ? styles.statusSuccess : model.upload.status === 'Failed' || model.upload.status === 'Delete Failed' ? styles.statusFailed : ''}>
+                        <td width='25%' className={model.upload.status === 'Success' ? styles.statusSuccess : 
+                                                   model.upload.status === 'Failed' || model.upload.status === 'Delete Failed' ? styles.statusFailed : 
+                                                   model.upload.status === 'Deleted' ? styles.statusDeleted : ''}>
                             {model.upload.status === 'Success' ? (
                                 <FontAwesomeIcon className={styles.statusIcon} icon={faCheckCircle} />
-                            ) : model.upload.status === 'Failed' || model.upload.status === 'Delete Failed' ? (
+                            ) : model.upload.status === 'Deleted' ? (
                                 <FontAwesomeIcon className={styles.statusIcon} icon={faTimesCircle} />
+                            ) : model.upload.status === 'Failed' || model.upload.status === 'Delete Failed' ? (
+                                <FontAwesomeIcon className={styles.statusIcon} icon={faExclamationCircle} />
                             ) : null}
                             <span className={styles.status}>{model.upload.status}</span>
                         </td>
-                        <td width='25%'>{model.upload.message || ''}</td>
+                        <td width='25%'>{model.upload.error || ''}</td>
                         <td width='auto'>
                             <FontAwesomeIcon icon={faChevronRight} />
                         </td>

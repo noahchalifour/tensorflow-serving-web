@@ -35,7 +35,7 @@ function getModels(callback) {
         });
 
         for (model of Object.keys(uploads)) {
-            if (uploads[model].status != 'Success') {
+            if (uploads[model].status != 'Success' && uploads[model].status != 'Delete Failed') {
                 models.push({
                     name: model,
                     upload: {
@@ -171,19 +171,31 @@ function deleteModel(name, callback) {
             return callback(err);
         }
 
-        return tensorflow.removeModelConfig(name, function(err) {
-
-            if (err && err.code != 2) {
-                uploads[name].status = 'Delete Failed';
-                uploads[name].error = err.message;
-                return callback(err);
-            }
-
-            delete uploads[name];
-
-        })
+        uploads[name].status = 'Deleted';
 
     })
+
+    // tensorflow.removeModelConfig(name, function(err) {
+
+    //     if (err && err.code != 2) {
+    //         uploads[name].status = 'Delete Failed';
+    //         uploads[name].error = err.message;
+    //         return callback(err);
+    //     }
+
+    //     rimraf(path.join(process.env.TF_MODELS_PATH, name), function(err) {
+
+    //         if (err) {
+    //             uploads[name].status = 'Delete Failed';
+    //             uploads[name].error = err.message;
+    //             return callback(err);
+    //         }
+    
+    //         delete uploads[name];
+    
+    //     })
+
+    // });
 
 }
 

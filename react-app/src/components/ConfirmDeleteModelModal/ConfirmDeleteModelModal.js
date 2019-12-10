@@ -30,6 +30,8 @@ function ConfirmDeleteModelModal(props) {
                 (response) => {
                     setSubmitting(false);
                     setDeleteResponse(response);
+                    props.onHide();
+                    props.onDelete();
                 },
                 (error) => {
                     setSubmitting(false);
@@ -37,10 +39,6 @@ function ConfirmDeleteModelModal(props) {
                 }
             )
 
-    }
-
-    if (deleteResponse && deleteResponse.status === 200) {
-        return props.onHide();
     }
 
     return (
@@ -58,7 +56,7 @@ function ConfirmDeleteModelModal(props) {
                     />
                 ) : (
                     <Wrapper>
-                        {deleteResponse && deleteResponse.status !== 200 (
+                        {deleteResponse && deleteResponse.status !== 200 && (
                             <Alert variant='danger'>
                                 {deleteResponse.data.messageText || deleteResponse.statusText}
                             </Alert>

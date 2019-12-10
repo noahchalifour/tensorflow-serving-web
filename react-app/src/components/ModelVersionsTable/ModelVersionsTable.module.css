@@ -11,6 +11,10 @@
 }
 
 .statusFailed {
+    color: #f1c40f;
+}
+
+.statusDeleted {
     color: #f54c4c;
 }
 
