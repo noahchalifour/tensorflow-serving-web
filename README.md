@@ -2,6 +2,8 @@
 
 This is a web management console for Tensorflow Serving built using Node.js, Express, and React. It allows you to view all the models in your Tensorflow Serving server, inspects all your models and add/remove models.
 
+![Models Dashboard](/screenshots/models.png)
+
 ## Features
 
 <ul>
