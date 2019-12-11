@@ -40,13 +40,15 @@ router.post('/add', fileUpload({
         })
     }
 
-    if (!req.files.model) {
+    if (!req.files || !req.files.model) {
         return res.status(400).json({
             messageText: 'You must upload a model as zip.'
         })
     }
 
-    ModelsController.getModelStatus(req.body.name, null, function(err, modelStatus) {
+    const name = req.body.name.replace(' ', '');
+
+    ModelsController.getModelStatus(name, null, function(err, modelStatus) {
 
         if (err && err.response.status != 404) {
             console.error(err);
@@ -65,7 +67,10 @@ router.post('/add', fileUpload({
             messageText: 'Started model upload.'
         });
     
-        ModelsController.addModel(req.body, req.files.model, function(err, model) {
+        ModelsController.addModel({
+            name: name,
+            platform: req.body.platform
+        }, req.files.model, function(err, model) {
     
             if (err) {
                 console.error('Error adding model:', err);

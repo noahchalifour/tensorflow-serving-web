@@ -130,6 +130,8 @@ function addModel(modelConfig, modelZip, callback) {
         addModelVersion(modelConfig.name, '1', modelZip, function(err) {
     
             if (err) {
+                uploads[modelConfig.name].status = 'Failed';
+                uploads[modelConfig.name].error = err.message;
                 return _callback(err);
             }
     
@@ -137,7 +139,7 @@ function addModel(modelConfig, modelZip, callback) {
     
                 if (err && err.code != 2) {
                     uploads[modelConfig.name].status = 'Failed';
-                    uploads[modelConfig.name].error = err.message
+                    uploads[modelConfig.name].error = err.message;
                     uploads[modelConfig.name].versions['1'] = {
                         status: 'Failed',
                         error: err.message

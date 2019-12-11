@@ -52,6 +52,16 @@ function AddModelModal(props) {
 
     }
 
+    function onCreateAnotherClick() {
+
+        setName('');
+        setPlatform('');
+        setModelZip(null);
+        setSubmitResponse(null);
+        setSubmitting(false);
+
+    }
+
     return (
         <Modal
             show={props.show}
@@ -121,6 +131,11 @@ function AddModelModal(props) {
                 {((!submitting && !submitResponse) || (!submitting && submitResponse && submitResponse.status !== 200)) && (
                     <Modal.Footer>
                         <Button className={styles.submit} type='submit'>Submit</Button>
+                    </Modal.Footer>
+                )}
+                {submitResponse && submitResponse.status === 200 && (
+                    <Modal.Footer>
+                        <Button variant='secondary' type='button' onClick={onCreateAnotherClick}>Create Another</Button>
                     </Modal.Footer>
                 )}
             </Form>
