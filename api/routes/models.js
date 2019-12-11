@@ -2,6 +2,7 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 
 const ModelsController = require('../controllers/ModelsController');
+ModelsController.setupQueue();
 
 const router = express.Router();
 

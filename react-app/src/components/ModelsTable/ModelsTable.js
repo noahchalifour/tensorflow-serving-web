@@ -60,7 +60,7 @@ function ModelsTable(props) {
                         </td>
                     </tr>
                 ) : props.models.data.map((model, index, arr) => (
-                    <tr key={index} className={styles.row} onClick={() => setSelectedRow(index)}>
+                    <tr key={index} className={model.upload.status === 'Success' ? styles.row : ''} onClick={model.upload.status === 'Success' ? () => setSelectedRow(index) : () => {}}>
                         <td width='25%'>{model.name}</td>
                         <td width='25%'>{model.platform || ''}</td>
                         <td width='25%' className={model.upload.status === 'Success' ? styles.statusSuccess : 
@@ -77,7 +77,9 @@ function ModelsTable(props) {
                         </td>
                         <td width='25%'>{model.upload.error || ''}</td>
                         <td width='auto'>
-                            <FontAwesomeIcon icon={faChevronRight} />
+                            {model.upload.status === 'Success' && (
+                                <FontAwesomeIcon icon={faChevronRight} />
+                            )}
                         </td>
                     </tr>
                 ))}

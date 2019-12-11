@@ -44,7 +44,9 @@ function getConfig(callback) {
 
             let config = parseConfig(configText).model_config_list;
 
-            if (!Array.isArray(config)) {
+            if (Array.isArray(config)) {
+                config = config.map(conf => conf.config);
+            } else {
                 if (config.config) {
                     config = [config.config];
                 } else {
@@ -85,11 +87,11 @@ function saveConfig(modelServerConfig, callback) {
         const name = model.getName();
         const basePath = model.getBasePath();
         const modelPlatform = model.getModelPlatform();
-        configStr += `config: {name: "${name}", base_path: "${basePath}", model_platform: "${modelPlatform}"},`;
+        configStr += `config: {name: "${name}", base_path: "${basePath}", model_platform: "${modelPlatform}"}, `;
     }
 
     if (configList.length > 0) {
-        configStr = configStr.slice(0, configStr.length - 1);
+        configStr = configStr.slice(0, configStr.length - 2);
     }
     
     configStr += '}';

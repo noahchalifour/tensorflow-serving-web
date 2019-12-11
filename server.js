@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded());
 
 app.use('/api', api);
 
-app.get('/', function(req, res) {
+app.get('*', function(req, res) {
   res.sendFile(path.join(reactAppPath, 'index.html'));
 });
 

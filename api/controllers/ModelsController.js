@@ -6,6 +6,24 @@ const axios = require('axios');
 const tensorflow = require('../../utils/tensorflow');
 
 let uploads = {};
+let locked = false;
+let tfQueue = [];
+
+function setupQueue() {
+
+    setInterval(function() {
+
+        if (!locked && tfQueue.length > 0) {
+            locked = true;
+            tfQueue[0](function() {
+                tfQueue.shift();
+                locked = false;
+            });
+        }
+        
+    }, 10000);
+
+}
 
 function getModels(callback) {
 
@@ -35,7 +53,7 @@ function getModels(callback) {
         });
 
         for (model of Object.keys(uploads)) {
-            if (uploads[model].status != 'Success' && uploads[model].status != 'Delete Failed') {
+            if (uploads[model].status != 'Success' && uploads[model].status != 'Deleting...') {
                 models.push({
                     name: model,
                     upload: {
@@ -98,36 +116,49 @@ function getModelMetadata(name, version, callback) {
 function addModel(modelConfig, modelZip, callback) {
 
     uploads[modelConfig.name] = {
-        status: 'Uploading...',
+        status: 'Waiting...',
         versions: {}
-    };
+    }
 
-    addModelVersion(modelConfig.name, '1', modelZip, function(err) {
+    tfQueue.push(function(_callback) {
 
-        if (err) {
-            return callback(err);
-        }
-
-        return tensorflow.addModelConfig(modelConfig, function(err, result) {
-
-            if (err && err.code != 2) {
-                uploads[modelConfig.name].status = 'Failed';
-                uploads[modelConfig.name].error = err.message
-                uploads[modelConfig.name].versions['1'] = {
-                    status: 'Failed',
-                    error: err.message
-                };
-                return callback(err);
+        uploads[modelConfig.name] = {
+            status: 'Uploading...',
+            versions: {}
+        };
+    
+        addModelVersion(modelConfig.name, '1', modelZip, function(err) {
+    
+            if (err) {
+                return _callback(err);
             }
+    
+            return tensorflow.addModelConfig(modelConfig, function(err, result) {
+    
+                if (err && err.code != 2) {
+                    uploads[modelConfig.name].status = 'Failed';
+                    uploads[modelConfig.name].error = err.message
+                    uploads[modelConfig.name].versions['1'] = {
+                        status: 'Failed',
+                        error: err.message
+                    };
+                    return _callback(err);
+                }
+    
+                uploads[modelConfig.name].status = 'Success';
+                uploads[modelConfig.name].versions['1'] = {
+                    status: 'Success'
+                };
 
-            uploads[modelConfig.name].status = 'Success';
-            uploads[modelConfig.name].versions['1'] = {
-                status: 'Success'
-            };
-
+                return _callback();
+    
+            });
+    
         });
 
     });
+
+    return callback();
 
 }
 
@@ -163,39 +194,48 @@ function deleteModel(name, callback) {
 
     uploads[name].status = 'Deleting...';
 
-    rimraf(path.join(process.env.TF_MODELS_PATH, name), function(err) {
+    // rimraf(path.join(process.env.TF_MODELS_PATH, name), function(err) {
 
-        if (err) {
-            uploads[name].status = 'Delete Failed';
-            uploads[name].error = err.message;
-            return callback(err);
-        }
-
-        uploads[name].status = 'Deleted';
-
-    })
-
-    // tensorflow.removeModelConfig(name, function(err) {
-
-    //     if (err && err.code != 2) {
+    //     if (err) {
     //         uploads[name].status = 'Delete Failed';
     //         uploads[name].error = err.message;
     //         return callback(err);
     //     }
 
-    //     rimraf(path.join(process.env.TF_MODELS_PATH, name), function(err) {
+    //     uploads[name].status = 'Deleted';
 
-    //         if (err) {
-    //             uploads[name].status = 'Delete Failed';
-    //             uploads[name].error = err.message;
-    //             return callback(err);
-    //         }
-    
-    //         delete uploads[name];
-    
-    //     })
+    // })
 
-    // });
+    tfQueue.push(function(_callback) {
+
+        tensorflow.removeModelConfig(name, function(err) {
+
+            if (err && err.code != 2) {
+                uploads[name].status = 'Delete Failed';
+                uploads[name].error = err.message;
+                return _callback(err);
+            }
+
+            rimraf(path.join(process.env.TF_MODELS_PATH, name), function(err) {
+
+                if (err) {
+                    uploads[name].status = 'Delete Failed';
+                    uploads[name].error = err.message;
+                    return _callback(err);
+                }
+        
+                // delete uploads[name];
+                uploads[name].status = 'Deleted';
+
+                return _callback();
+        
+            })
+
+        });
+
+    });
+
+    return callback();
 
 }
 
@@ -218,6 +258,7 @@ function deleteModelVersion(name, version, callback) {
 }
 
 module.exports = {
+    setupQueue,
     getModels,
     getModelStatus,
     getModelMetadata,
